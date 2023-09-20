@@ -54,9 +54,6 @@ export class CartComponent {
 
   changeQuantity(item: Item, amount: 1 | -1) {
     item.quantity += amount;
-    if (item.quantity < 0) {
-      item.quantity = 0;
-    }
   }
 
   remove(item: Item) {
