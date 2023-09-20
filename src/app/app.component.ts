@@ -11,7 +11,15 @@ import {CartComponent} from './cart/cart.component';
     template: `
         <binx-cart [items]="items" />
     `,
-    styles: [],
+    styles: [`
+    :host {
+        display: block;
+        background-image: url("../assets/spooky_night_sky.png");
+        background-size: cover;
+        height: 100vh;
+        padding: 200px 0 0;
+    }
+    `],
 })
 export class AppComponent {
     items: Item[] = [
