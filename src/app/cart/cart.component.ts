@@ -10,10 +10,10 @@ import { CartItemComponent } from '../cart-item/cart-item.component';
   template: `
     <h2>Cart</h2>
     <binx-cart-item
-      *ngFor="let item of items"
+      *ngFor="let item of items; index as i"
       [item]="item"
-      (remove)="remove(item)"
-      (changeQuantity)="changeQuantity(item, $event)"
+      (remove)="remove(i)"
+      (changeQuantity)="changeQuantity(i, $event)"
     />
     <h3>Total: {{ total | currency }}</h3>
   `,
@@ -52,11 +52,11 @@ export class CartComponent {
   @Input() items: Item[] = [];
   total = 0;
 
-  changeQuantity(item: Item, amount: 1 | -1) {
-    item.quantity += amount;
+  changeQuantity(i: number, amount: 1 | -1) {
+    this.items[i].quantity += amount;
   }
 
-  remove(item: Item) {
-    this.items = this.items.filter((i) => i !== item);
+  remove(i: number) {
+    this.items.splice(i, 1);
   }
 }
