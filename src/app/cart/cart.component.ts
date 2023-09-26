@@ -25,6 +25,7 @@ import { CartItemComponent } from '../cart-item/cart-item.component';
         background-size: cover;
         width: 600px;
         margin: 0 auto;
+        min-height: 80vh;
       }
 
       h2 {
