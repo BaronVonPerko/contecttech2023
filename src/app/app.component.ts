@@ -24,6 +24,6 @@ export class AppComponent {
     { name: "Dead Man's Toe", price: 24.95, quantity: 3 },
     { name: 'Newt Saliva', price: 9.99, quantity: 1 },
     { name: 'Vial of Pox', price: 14.85, quantity: 1 },
-    { name: "Bit of Witch's Tongue", price: 59.99, quantity: 1 },
+    { name: "Witch's Tongue", price: 59.99, quantity: 1 },
   ];
 }
