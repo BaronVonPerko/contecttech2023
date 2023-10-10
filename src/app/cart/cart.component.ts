@@ -1,21 +1,23 @@
 import { Component, Input } from '@angular/core';
-import { CurrencyPipe, NgForOf } from '@angular/common';
+import {AsyncPipe, CurrencyPipe, NgForOf} from '@angular/common';
 import { Item } from '../models/item';
 import { CartItemComponent } from '../cart-item/cart-item.component';
+import {Title} from '@angular/platform-browser';
+import {BehaviorSubject, map, tap} from 'rxjs';
 
 @Component({
   selector: 'binx-cart',
   standalone: true,
-  imports: [NgForOf, CurrencyPipe, CartItemComponent],
+  imports: [NgForOf, CurrencyPipe, CartItemComponent, AsyncPipe],
   template: `
     <h2>Cart</h2>
     <binx-cart-item
-      *ngFor="let item of items; index as i"
+      *ngFor="let item of _items | async; index as i"
       [item]="item"
       (remove)="remove(i)"
       (changeQuantity)="changeQuantity(i, $event)"
     />
-    <h3>Total: {{ total | currency }}</h3>
+    <h3>Total: {{ total$ | async | currency }}</h3>
   `,
   styles: [
     `
@@ -50,14 +52,29 @@ import { CartItemComponent } from '../cart-item/cart-item.component';
   ],
 })
 export class CartComponent {
-  @Input() items: Item[] = [];
-  total = 0;
+  _items = new BehaviorSubject<Item[]>([]);
+  @Input() set items(value: Item[]) {
+    this._items.next(value);
+  }
+  total$ = this._items.asObservable().pipe(
+      tap((items) => {
+        const numItems = items.reduce((acc, item) => acc + item.quantity, 0);
+        this.title.setTitle(`Cart (${numItems})`);
+      }),
+      map((items) => items.reduce((acc, item) => acc + item.price * item.quantity, 0))
+  );
+
+  constructor(private title: Title) {}
 
   changeQuantity(i: number, amount: 1 | -1) {
-    this.items[i].quantity += amount;
+    const items = this._items.value;
+    items[i].quantity += amount;
+    this._items.next(items);
   }
 
   remove(i: number) {
-    this.items.splice(i, 1);
+    const items = this._items.value;
+    items.splice(i, 1);
+    this._items.next(items);
   }
 }
