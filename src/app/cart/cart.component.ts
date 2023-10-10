@@ -1,9 +1,8 @@
-import { Component, Input } from '@angular/core';
-import {AsyncPipe, CurrencyPipe, NgForOf} from '@angular/common';
+import { Component, computed, effect, Input, signal } from '@angular/core';
+import { AsyncPipe, CurrencyPipe, NgForOf } from '@angular/common';
 import { Item } from '../models/item';
 import { CartItemComponent } from '../cart-item/cart-item.component';
-import {Title} from '@angular/platform-browser';
-import {BehaviorSubject, map, tap} from 'rxjs';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'binx-cart',
@@ -12,12 +11,12 @@ import {BehaviorSubject, map, tap} from 'rxjs';
   template: `
     <h2>Cart</h2>
     <binx-cart-item
-      *ngFor="let item of _items | async; index as i"
+      *ngFor="let item of _items(); index as i"
       [item]="item"
       (remove)="remove(i)"
       (changeQuantity)="changeQuantity(i, $event)"
     />
-    <h3>Total: {{ total$ | async | currency }}</h3>
+    <h3>Total: {{ total() | currency }}</h3>
   `,
   styles: [
     `
@@ -52,29 +51,29 @@ import {BehaviorSubject, map, tap} from 'rxjs';
   ],
 })
 export class CartComponent {
-  _items = new BehaviorSubject<Item[]>([]);
+  _items = signal<Item[]>([]);
   @Input() set items(value: Item[]) {
-    this._items.next(value);
+    this._items.set(value);
   }
-  total$ = this._items.asObservable().pipe(
-      tap((items) => {
-        const numItems = items.reduce((acc, item) => acc + item.quantity, 0);
-        this.title.setTitle(`Cart (${numItems})`);
-      }),
-      map((items) => items.reduce((acc, item) => acc + item.price * item.quantity, 0))
+  total = computed(() =>
+    this._items().reduce((acc, item) => acc + item.price * item.quantity, 0),
   );
 
-  constructor(private title: Title) {}
+  constructor(private title: Title) {
+    effect(() => {
+      const numItems = this._items().reduce(
+        (acc, item) => acc + item.quantity,
+        0,
+      );
+      this.title.setTitle(`Cart (${numItems})`);
+    });
+  }
 
   changeQuantity(i: number, amount: 1 | -1) {
-    const items = this._items.value;
-    items[i].quantity += amount;
-    this._items.next(items);
+    this._items.mutate((items) => (items[i].quantity += amount));
   }
 
   remove(i: number) {
-    const items = this._items.value;
-    items.splice(i, 1);
-    this._items.next(items);
+    this._items.mutate((items) => items.splice(i, 1));
   }
 }
