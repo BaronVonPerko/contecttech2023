@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CurrencyPipe, NgForOf } from '@angular/common';
 import { Item } from '../models/item';
 import { CartItemComponent } from '../cart-item/cart-item.component';
+import {Title} from '@angular/platform-browser';
 
 @Component({
   selector: 'binx-cart',
@@ -53,11 +54,32 @@ export class CartComponent {
   @Input() items: Item[] = [];
   total = 0;
 
+  constructor(private title: Title) {
+  }
+
+  ngOnInit() {
+    this.updateTotal();
+    this.updateTitle();
+  }
+
   changeQuantity(i: number, amount: 1 | -1) {
     this.items[i].quantity += amount;
+    this.updateTotal();
+    this.updateTitle();
   }
 
   remove(i: number) {
     this.items.splice(i, 1);
+    this.updateTotal();
+    this.updateTitle();
+  }
+
+  updateTotal() {
+    this.total = this.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  }
+
+  updateTitle() {
+    const numItems = this.items.reduce((acc, item) => acc + item.quantity, 0);
+    this.title.setTitle(`Cart (${numItems})`);
   }
 }
