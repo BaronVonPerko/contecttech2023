@@ -1,21 +1,23 @@
 import { Component, Input } from '@angular/core';
-import { CurrencyPipe, NgForOf } from '@angular/common';
+import {AsyncPipe, CurrencyPipe, NgForOf} from '@angular/common';
 import { Item } from '../models/item';
 import { CartItemComponent } from '../cart-item/cart-item.component';
+import {CartStore} from './cart.store';
 
 @Component({
   selector: 'binx-cart',
   standalone: true,
-  imports: [NgForOf, CurrencyPipe, CartItemComponent],
+  imports: [NgForOf, CurrencyPipe, CartItemComponent, AsyncPipe],
+  providers: [CartStore],
   template: `
     <h2>Cart</h2>
     <binx-cart-item
-      *ngFor="let item of items; index as i"
+      *ngFor="let item of store.items$ | async; index as i"
       [item]="item"
-      (remove)="remove(i)"
-      (changeQuantity)="changeQuantity(i, $event)"
+      (remove)="store.remove(i)"
+      (changeQuantity)="store.changeQuantity(i, $event)"
     />
-    <h3>Total: {{ total | currency }}</h3>
+    <h3>Total: {{ store.total$ | async | currency }}</h3>
   `,
   styles: [
     `
@@ -50,14 +52,10 @@ import { CartItemComponent } from '../cart-item/cart-item.component';
   ],
 })
 export class CartComponent {
-  @Input() items: Item[] = [];
-  total = 0;
-
-  changeQuantity(i: number, amount: 1 | -1) {
-    this.items[i].quantity += amount;
+  @Input() set items(value: Item[]) {
+    this.store.setState({items: value})
   }
 
-  remove(i: number) {
-    this.items.splice(i, 1);
+  constructor(protected store: CartStore) {
   }
 }
