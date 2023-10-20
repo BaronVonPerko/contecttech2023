@@ -35,6 +35,7 @@ import { CartItemComponent } from '../cart-item/cart-item.component';
       h3 {
         text-align: right;
         padding: 20px;
+        background: rgba(0,0,0,0.5);
       }
 
       h2,
