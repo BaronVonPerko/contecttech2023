@@ -10,8 +10,8 @@ interface CartState {
 
 @Injectable()
 export class CartStore extends ComponentStore<CartState> {
-    items$ = this.select(state => state.items);
-    total$ = this.select(state => state.items.reduce((acc, item) => acc + item.quantity * item.price, 0));
+    readonly items$ = this.select(state => state.items);
+    readonly total$ = this.select(state => state.items.reduce((acc, item) => acc + item.quantity * item.price, 0));
 
     constructor(private title: Title) {
         super({
