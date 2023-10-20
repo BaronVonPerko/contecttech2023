@@ -20,9 +20,10 @@ export class CartStore extends ComponentStore<CartState> {
     }
 
     changeQuantity(index: number, amount: 1 | -1) {
-        const items = this.get(state => state.items);
-        items[index].quantity += amount;
-        this.patchState({items: [...items]});
+        this.setState(state => {
+            state.items[index].quantity += amount;
+            return {items: [...state.items]}
+        })
     }
 
     remove = this.updater((state, index: number) => {
