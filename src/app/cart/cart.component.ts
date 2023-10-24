@@ -12,10 +12,10 @@ import {BehaviorSubject, map, tap} from 'rxjs';
   template: `
     <h2>Cart</h2>
     <binx-cart-item
-      *ngFor="let item of _items | async; index as i"
+      *ngFor="let item of _items | async as items; index as i"
       [item]="item"
-      (remove)="remove(i)"
-      (changeQuantity)="changeQuantity(i, $event)"
+      (remove)="remove(items, i)"
+      (changeQuantity)="changeQuantity(items, i, $event)"
     />
     <h3>Total: {{ total$ | async | currency }}</h3>
   `,
@@ -67,14 +67,12 @@ export class CartComponent {
 
   constructor(private title: Title) {}
 
-  changeQuantity(i: number, amount: 1 | -1) {
-    const items = this._items.value;
+  changeQuantity(items: Item[], i: number, amount: 1 | -1) {
     items[i].quantity += amount;
     this._items.next(items);
   }
 
-  remove(i: number) {
-    const items = this._items.value;
+  remove(items: Item[], i: number) {
     items.splice(i, 1);
     this._items.next(items);
   }
